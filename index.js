@@ -1,27 +1,32 @@
 import jsonServer from "json-server";
+import auth from "json-server-auth";
 import cors from "cors";
 
 const PORT = process.env.PORT || 3000;
 
 const app = jsonServer.create();
 const router = jsonServer.router("db.json");
-const middlewares = jsonServer.defaults();
 
-// Cho phép CORS
-app.use(cors());
+setupApp();
 
-// Middleware mặc định (logger, static, v.v.)
-app.use(middlewares);
+async function setupApp() {
+  const rules = auth.rewriter({
+    users: 600,
+    messages: 640,
+  });
 
-// Sử dụng router cho db.json
-app.use(router);
+  app.db = router.db;
 
-// Xử lý route không tồn tại
-app.get("*", (req, res) => {
-  res.status(404).send("404 Not Found");
-});
+  app.use(rules);
+  app.use(cors());
+  app.use(auth);
+  app.use(router);
 
-// Khởi động server
-app.listen(PORT, () => {
-  console.log(`JSON Server is running on ${PORT}`);
-});
+  app.get("*", (req, res) => {
+    res.status(404).send("Not Found");
+  });
+
+  app.listen(PORT, () => {
+    console.log(`http://localhost:${PORT}`);
+  });
+}
