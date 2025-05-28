@@ -1,33 +1,27 @@
 import jsonServer from "json-server";
-import auth from "json-server-auth";
 import cors from "cors";
 
-const PORT = process.env.PORT || 3000; // 👈 đúng chuẩn
+const PORT = process.env.PORT || 3000;
 
 const app = jsonServer.create();
 const router = jsonServer.router("db.json");
+const middlewares = jsonServer.defaults();
 
-setupApp();
+// Cho phép CORS
+app.use(cors());
 
-async function setupApp() {
-  const rules = auth.rewriter({
-    users: 600,
-    messages: 640,
-    products: 660,
-  });
+// Middleware mặc định (logger, static, v.v.)
+app.use(middlewares);
 
-  app.db = router.db;
+// Sử dụng router cho db.json
+app.use(router);
 
-  app.use(cors()); // CORS trước để cho phép FE gọi
-  app.use(rules); // Áp dụng quyền truy cập
-  app.use(auth); // Xác thực json-server-auth
-  app.use(router); // Router chính
+// Xử lý route không tồn tại
+app.get("*", (req, res) => {
+  res.status(404).send("404 Not Found");
+});
 
-  app.get("*", (req, res) => {
-    res.status(404).send("404 Not Found");
-  });
-
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
+// Khởi động server
+app.listen(PORT, () => {
+  console.log(`JSON Server is running on ${PORT}`);
+});

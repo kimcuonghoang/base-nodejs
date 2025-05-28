@@ -1,3 +1,16 @@
 {
-  "products": []
+  "users": [
+    {
+      "id": 1,
+      "email": "test@example.com",
+      "password": "123456"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Áo thun",
+      "price": 200000
+    }
+  ]
 }
